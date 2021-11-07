@@ -1,21 +1,40 @@
-import { useState } from 'react'
+import { useState } from "react";
 
 import { Canvas, Rect } from "./Components";
 
 const App = () => {
-  const [x, setX] = useState(0);
-  const [list, setList] = useState([]);
-  return(
-    <>
+  const [width, setWidth] = useState(200);
+  const [scale, setScale] = useState(1);
+  const [fill, setFill] = useState("red");
 
-      <Canvas>
-        <Rect x={300} y={150} width={200} height={200} fill='red' stroke='green' borderRadius={0}/>
-        <Rect x={x} y={0}/>
-        {list.map((item, i) => <Rect key={i} x={(i + 1) * 20} y={(i + 1) * 20}/>)}
+  return (
+    <>
+      <Canvas
+        style={{
+          height: 700,
+          border: "1px solid red",
+          margin: 16,
+        }}
+      >
+        <Rect
+          x={300}
+          y={150}
+          scale={scale}
+          width={width}
+          height={width}
+          fill={fill}
+          borderRadius={16}
+          onClick={() => {
+            setWidth((current) => (current === 400 ? 200 : 400));
+            setFill((current) => (current === "red" ? "blue" : "red"));
+          }}
+          onMouseEnter={() => setScale(1.1)}
+          onMouseLeave={() => setScale(1)}
+        />
+        {/* <Rect x={50} y={50} /> */}
       </Canvas>
-      <button onClick={() => setX(current => current += 20)}>Increase</button>
-      <button onClick={() => setList(current => current.concat(0))}>Add</button>
     </>
-)};
+  );
+};
 
 export default App;
