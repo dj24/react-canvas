@@ -4,6 +4,8 @@ import { Canvas, Rect } from "./Components";
 
 const App = () => {
   const [width, setWidth] = useState(200);
+  const [top, setTop] = useState(null);
+  const [bottom, setBottom] = useState(50);
   const [scale, setScale] = useState(1);
   const [fill, setFill] = useState("red");
 
@@ -11,14 +13,21 @@ const App = () => {
     <>
       <Canvas
         style={{
-          height: 700,
-          border: "1px solid red",
-          margin: 16,
+          position: "fixed",
+          bottom: 32,
+          top: 32,
+          left: 32,
+          right: 32,
+          background: "white",
+          borderRadius: 16,
+          boxShadow: "0 4px 64px -32px rgba(0,0,0,1)",
         }}
       >
         <Rect
-          x={300}
-          y={150}
+          left={top}
+          right={bottom}
+          top={top}
+          bottom={bottom}
           scale={scale}
           width={width}
           height={width}
@@ -26,10 +35,17 @@ const App = () => {
           borderRadius={16}
           onClick={() => {
             setWidth((current) => (current === 400 ? 200 : 400));
-            setFill((current) => (current === "red" ? "blue" : "red"));
+            if (top) {
+              setTop(null);
+              setBottom(50);
+            }
+            if (bottom) {
+              setBottom(null);
+              setTop(50);
+            }
           }}
-          onMouseEnter={() => setScale(1.1)}
-          onMouseLeave={() => setScale(1)}
+          onMouseDown={() => setScale(0.9)}
+          onMouseUp={() => setScale(1)}
         />
         {/* <Rect x={50} y={50} /> */}
       </Canvas>

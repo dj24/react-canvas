@@ -1,10 +1,13 @@
 import { useSpring } from "@react-spring/core";
 import { Fragment, useEffect } from "react";
 import { useCanvas } from "./Canvas";
+import usePosition from "../hooks/usePosition";
 
 const Rect = ({
-  x = 0,
-  y = 0,
+  left = 0,
+  top = 0,
+  right,
+  bottom,
   width = 50,
   height = 50,
   fill = "#A5B4FC",
@@ -17,14 +20,30 @@ const Rect = ({
   onClick,
 }) => {
   const { dispatch } = useCanvas();
-  const [styles] = useSpring(() => ({
+
+  const {
+    x,
+    y,
+    width: adjustedWidth,
+    height: adjustedHeight,
+  } = usePosition({
+    top,
+    left,
+    right,
+    bottom,
     width,
+    height,
+  });
+
+  const [styles] = useSpring(() => ({
+    width: adjustedWidth,
+    height: adjustedHeight,
     fill,
     stroke,
-    height,
     x,
     y,
     scale,
+    config: { mass: 1, tension: 150, friction: 40 },
   }));
   useEffect(() => {
     if (index === undefined) {
@@ -38,7 +57,15 @@ const Rect = ({
       onMouseUp,
       onClick,
       styles,
-      targets: { width, fill, stroke, height, x, y, scale },
+      targets: {
+        width: adjustedWidth,
+        fill,
+        stroke,
+        height: adjustedHeight,
+        x,
+        y,
+        scale,
+      },
     });
   }, [
     dispatch,
@@ -48,10 +75,10 @@ const Rect = ({
     onClick,
     onMouseUp,
     styles,
-    width,
+    adjustedHeight,
+    adjustedWidth,
     fill,
     stroke,
-    height,
     scale,
     x,
     y,

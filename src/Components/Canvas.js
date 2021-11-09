@@ -1,4 +1,11 @@
-import React, { useRef, useEffect, createContext, useContext } from "react";
+import React, {
+  useRef,
+  useEffect,
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+} from "react";
 
 import { rect, roundedRect } from "../util";
 
@@ -7,7 +14,7 @@ const CanvasContext = createContext();
 const useCanvas = () => useContext(CanvasContext);
 
 const Canvas = ({ children, style }) => {
-  const ref = useRef(null);
+  const [canvas, setCanvas] = useState(null);
   const objects = useRef([]);
   const mousePosition = useRef({ x: 0, y: 0 });
   const lastFrameTime = useRef(0);
@@ -15,7 +22,6 @@ const Canvas = ({ children, style }) => {
   const dispatch = (action) => {
     const copiedState = [...objects.current];
     const { index, styles, targets, ...rest } = action;
-    console.log({ styles });
     if (objects.current[index]) {
       Object.entries(objects.current[index].styles).forEach(([key, spring]) => {
         spring.start({
@@ -30,58 +36,76 @@ const Canvas = ({ children, style }) => {
       styles,
     };
     objects.current = copiedState;
-    console.log({ action });
   };
 
-  const renderRect = (obj) => {
-    const { borderRadius, styles } = obj;
-    const context = ref.current.getContext("2d");
+  const renderRect = useCallback(
+    (obj) => {
+      if (!canvas) {
+        return;
+      }
+      const { borderRadius, styles } = obj;
+      const context = canvas.getContext("2d");
 
-    // Using canvas means we need to tell springs how much to animate
-    const currentTime = new Date().getTime();
-    const deltaTime = currentTime - lastFrameTime.current;
-    Object.values(styles).forEach((spring) => {
-      spring.advance(deltaTime);
-    });
+      // Using canvas means we need to tell springs how much to animate
+      const currentTime = new Date().getTime();
+      const deltaTime = currentTime - lastFrameTime.current;
+      Object.values(styles).forEach((spring) => {
+        spring.advance(deltaTime);
+      });
 
-    lastFrameTime.current = currentTime;
+      lastFrameTime.current = currentTime;
 
-    if (borderRadius === 0) {
-      rect(
-        context,
-        styles.x.get(),
-        styles.y.get(),
-        styles.width.get() * styles.scale.get(),
-        styles.height.get() * styles.scale.get(),
-        styles.fill.get(),
-        styles.stroke.get()
-      );
-    } else {
-      roundedRect(
-        context,
-        styles.x.get(),
-        styles.y.get(),
-        styles.width.get() * styles.scale.get(),
-        styles.height.get() * styles.scale.get(),
-        styles.fill.get(),
-        styles.stroke.get(),
-        borderRadius
-      );
-    }
-  };
+      if (borderRadius === 0) {
+        rect(
+          context,
+          styles.x.get() + ((1 - styles.scale.get()) * styles.width.get()) / 2,
+          styles.y.get() + ((1 - styles.scale.get()) * styles.height.get()) / 2,
+          styles.width.get() * styles.scale.get(),
+          styles.height.get() * styles.scale.get(),
+          styles.fill.get(),
+          styles.stroke.get()
+        );
+      } else {
+        roundedRect(
+          context,
+          styles.x.get() + ((1 - styles.scale.get()) * styles.width.get()) / 2,
+          styles.y.get() + ((1 - styles.scale.get()) * styles.height.get()) / 2,
+          styles.width.get() * styles.scale.get(),
+          styles.height.get() * styles.scale.get(),
+          styles.fill.get(),
+          styles.stroke.get(),
+          borderRadius
+        );
+      }
+    },
+    [canvas]
+  );
+
+  const [width, setWidth] = useState(null);
+  const [height, setHeight] = useState(null);
 
   useEffect(() => {
+    if (!canvas) {
+      return;
+    }
     let animationFrameId;
-    const canvas = ref.current;
-    const context = ref.current.getContext("2d");
+    const context = canvas.getContext("2d");
+    const parent = canvas.parentNode;
+    if (!width) {
+      setWidth(parent.offsetWidth * window.devicePixelRatio);
+    }
+    if (!height) {
+      setHeight(parent.offsetHeight * window.devicePixelRatio);
+    }
 
     const resizeObserver = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect;
-      canvas.width = width;
-      canvas.height = height;
+      setWidth(width);
+      setHeight(height);
     });
     resizeObserver.observe(canvas);
-
+    if (!width || !height) return;
+    console.log({ width, height });
     const render = () => {
       context.setTransform(
         window.devicePixelRatio,
@@ -94,14 +118,14 @@ const Canvas = ({ children, style }) => {
       context.clearRect(
         0,
         0,
-        canvas.width * window.devicePixelRatio,
-        canvas.height * window.devicePixelRatio
+        width * window.devicePixelRatio,
+        height * window.devicePixelRatio
       );
       objects.current.forEach(renderRect);
       rect(
         context,
-        mousePosition.current.x,
-        mousePosition.current.y,
+        mousePosition.current.x - 10,
+        mousePosition.current.y - 10,
         20,
         20,
         "red",
@@ -115,7 +139,7 @@ const Canvas = ({ children, style }) => {
       resizeObserver.unobserve(canvas);
       window.cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [canvas, renderRect, height, width]);
 
   const indexedChildren = React.Children.map(children, (child, i) =>
     React.isValidElement(child)
@@ -125,7 +149,7 @@ const Canvas = ({ children, style }) => {
 
   const handleMouseMove = (event) => {
     const { clientX, clientY } = event;
-    const { x, y } = ref.current.getBoundingClientRect();
+    const { x, y } = canvas.getBoundingClientRect();
     mousePosition.current = { x: clientX - x, y: clientY - y };
   };
 
@@ -163,9 +187,7 @@ const Canvas = ({ children, style }) => {
 
   const handleClick = (event) => {
     // Reverse the array to check top layers first
-
     objects.current.reverse().forEach((object) => {
-      console.log(object);
       const { x, y, width, height } = object.styles;
       if (
         object.onClick &&
@@ -181,9 +203,7 @@ const Canvas = ({ children, style }) => {
 
   const handleMouseEnter = (event) => {
     // Reverse the array to check top layers first
-
     objects.current.reverse().forEach((object) => {
-      console.log(object);
       const { x, y, width, height } = object.styles;
       if (
         object.onMouseEnter &&
@@ -201,7 +221,6 @@ const Canvas = ({ children, style }) => {
     // Reverse the array to check top layers first
 
     objects.current.reverse().forEach((object) => {
-      console.log(object);
       const { x, y, width, height } = object.styles;
       if (
         object.onMouseLeave &&
@@ -219,18 +238,27 @@ const Canvas = ({ children, style }) => {
     dispatch,
     objects: objects.current,
     mousePosition: mousePosition.current,
+    width: width / window.devicePixelRatio || null,
+    height: height / window.devicePixelRatio || null,
   };
 
   return (
     <div id="canvas-container" style={style}>
       <canvas
+        width={width}
+        height={height}
         style={{
           width: `${window.devicePixelRatio}00%`,
           height: `${window.devicePixelRatio}00%`,
           transformOrigin: "top left",
           transform: `scale(${1 / window.devicePixelRatio})`,
         }}
-        ref={ref}
+        ref={(current) => {
+          if (!current) {
+            return;
+          }
+          setCanvas(current);
+        }}
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
         onMouseEnter={handleMouseEnter}
