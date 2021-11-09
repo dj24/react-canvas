@@ -4,16 +4,17 @@ import { useCanvas } from "./Canvas";
 import usePosition from "../hooks/usePosition";
 
 const Rect = ({
-  left = 0,
-  top = 0,
+  left,
+  top,
   right,
   bottom,
   width = 50,
   height = 50,
   fill = "#A5B4FC",
   stroke = "#6366F1",
-  scale,
-  borderRadius = 16,
+  scale = 1,
+  rotate = 0,
+  borderRadius = 0,
   index,
   onMouseDown,
   onMouseUp,
@@ -38,11 +39,10 @@ const Rect = ({
   const [styles] = useSpring(() => ({
     width: adjustedWidth,
     height: adjustedHeight,
-    fill,
-    stroke,
     x,
     y,
     scale,
+    rotate,
     config: { mass: 1, tension: 150, friction: 40 },
   }));
   useEffect(() => {
@@ -57,6 +57,8 @@ const Rect = ({
       onMouseUp,
       onClick,
       styles,
+      fill,
+      stroke,
       targets: {
         width: adjustedWidth,
         fill,
@@ -65,6 +67,7 @@ const Rect = ({
         x,
         y,
         scale,
+        rotate,
       },
     });
   }, [
@@ -80,6 +83,7 @@ const Rect = ({
     fill,
     stroke,
     scale,
+    rotate,
     x,
     y,
   ]);

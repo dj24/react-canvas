@@ -1,8 +1,5 @@
 const roundedRect = (ctx, x, y, width, height, fill, stroke, radius) => {
   //   console.log({ ctx, x, y, width, height, fill, stroke });
-  ctx.save();
-  ctx.fillStyle = fill;
-  ctx.strokeStyle = stroke;
 
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
@@ -15,9 +12,10 @@ const roundedRect = (ctx, x, y, width, height, fill, stroke, radius) => {
   ctx.lineTo(x, y + radius);
   ctx.quadraticCurveTo(x, y, x + radius, y);
   ctx.closePath();
+  ctx.fillStyle = fill;
   ctx.fill();
+  ctx.strokeStyle = stroke;
   ctx.stroke();
-  ctx.restore();
 };
 
 export default roundedRect;

@@ -20,23 +20,24 @@ const usePosition = ({
   let width = objectWidth;
   let height = objectHeight;
   if (canvasWidth && canvasHeight) {
-    if (left) {
+    if (left !== null) {
       x = left;
-    } else if (right) {
+    } else if (right !== null) {
       x = canvasWidth - objectWidth - right;
     }
-    if (top) {
+    if (top !== null) {
       y = top;
-    } else if (bottom) {
+    } else if (bottom !== null) {
       y = canvasHeight - objectHeight - bottom;
     }
-    if (left && right) {
+    if (left !== null && right !== null) {
       width = canvasWidth - left - right;
     }
-    if (top && bottom) {
+    if (top !== null && bottom !== null) {
       height = canvasHeight - top - bottom;
     }
   }
+  // console.log({ left, right, x, width, objectWidth });
   return { x, y, width, height };
 };
 

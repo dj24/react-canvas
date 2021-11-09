@@ -24,9 +24,11 @@ const Canvas = ({ children, style }) => {
     const { index, styles, targets, ...rest } = action;
     if (objects.current[index]) {
       Object.entries(objects.current[index].styles).forEach(([key, spring]) => {
+        const from = objects.current[index].styles[key].get();
+        const to = targets[key];
         spring.start({
-          from: objects.current[index].styles[key].get(),
-          to: targets[key],
+          from,
+          to,
         });
       });
     }
@@ -43,7 +45,7 @@ const Canvas = ({ children, style }) => {
       if (!canvas) {
         return;
       }
-      const { borderRadius, styles } = obj;
+      const { borderRadius, styles, fill, stroke } = obj;
       const context = canvas.getContext("2d");
 
       // Using canvas means we need to tell springs how much to animate
@@ -54,7 +56,13 @@ const Canvas = ({ children, style }) => {
       });
 
       lastFrameTime.current = currentTime;
-
+      context.save();
+      // Apply Rotation
+      const centerX = styles.x.get() + styles.width.get() / 2;
+      const centerY = styles.y.get() + styles.height.get() / 2;
+      context.translate(centerX, centerY);
+      context.rotate((styles.rotate.get() * Math.PI) / 180);
+      context.translate(-centerX, -centerY);
       if (borderRadius === 0) {
         rect(
           context,
@@ -62,8 +70,8 @@ const Canvas = ({ children, style }) => {
           styles.y.get() + ((1 - styles.scale.get()) * styles.height.get()) / 2,
           styles.width.get() * styles.scale.get(),
           styles.height.get() * styles.scale.get(),
-          styles.fill.get(),
-          styles.stroke.get()
+          fill,
+          stroke
         );
       } else {
         roundedRect(
@@ -72,11 +80,12 @@ const Canvas = ({ children, style }) => {
           styles.y.get() + ((1 - styles.scale.get()) * styles.height.get()) / 2,
           styles.width.get() * styles.scale.get(),
           styles.height.get() * styles.scale.get(),
-          styles.fill.get(),
-          styles.stroke.get(),
-          borderRadius
+          fill,
+          stroke,
+          borderRadius * styles.scale.get()
         );
       }
+      context.restore();
     },
     [canvas]
   );
@@ -91,21 +100,21 @@ const Canvas = ({ children, style }) => {
     let animationFrameId;
     const context = canvas.getContext("2d");
     const parent = canvas.parentNode;
-    if (!width) {
-      setWidth(parent.offsetWidth * window.devicePixelRatio);
-    }
-    if (!height) {
-      setHeight(parent.offsetHeight * window.devicePixelRatio);
-    }
+    // if (!width) {
+    //   setWidth(parent.offsetWidth * window.devicePixelRatio);
+    // }
+    // if (!height) {
+    //   setHeight(parent.offsetHeight * window.devicePixelRatio);
+    // }
 
     const resizeObserver = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect;
-      setWidth(width);
-      setHeight(height);
+      setWidth(width * window.devicePixelRatio);
+      setHeight(height * window.devicePixelRatio);
     });
-    resizeObserver.observe(canvas);
+    resizeObserver.observe(parent);
     if (!width || !height) return;
-    console.log({ width, height });
+
     const render = () => {
       context.setTransform(
         window.devicePixelRatio,
@@ -115,6 +124,7 @@ const Canvas = ({ children, style }) => {
         0,
         0
       );
+
       context.clearRect(
         0,
         0,
@@ -250,7 +260,7 @@ const Canvas = ({ children, style }) => {
         style={{
           width: `${window.devicePixelRatio}00%`,
           height: `${window.devicePixelRatio}00%`,
-          transformOrigin: "top left",
+          transformOrigin: "left top",
           transform: `scale(${1 / window.devicePixelRatio})`,
         }}
         ref={(current) => {
