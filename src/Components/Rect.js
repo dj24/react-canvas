@@ -1,8 +1,6 @@
 import { useSpring } from "@react-spring/core";
-import { Fragment, useEffect } from "react";
 import { useCanvas } from "./Canvas";
 import usePosition from "../hooks/usePosition";
-
 
 // TODO: type this to be reusable
 // maybe refactor for reconciler?
@@ -50,54 +48,36 @@ const Rect = ({
     rotate,
     config: { mass: 1, tension: 150, friction: 40 },
   }));
-  useEffect(() => {
-    if (index === undefined) {
-      return;
-    }
-    dispatch({
-      index,
-      type: "rect",
-      borderRadius,
-      onMouseDown,
-      onMouseUp,
-      onMouseEnter,
-      onMouseLeave,
-      onClick,
-      styles,
-      fill,
-      stroke,
-      targets: {
-        width: adjustedWidth,
-        fill,
-        stroke,
-        height: adjustedHeight,
-        x,
-        y,
-        scale,
-        rotate,
-      },
-    });
-  }, [
-    dispatch,
-    borderRadius,
+
+  if (index === undefined) {
+    return null;
+  }
+
+  dispatch({
     index,
+    type: "rect",
+    borderRadius,
     onMouseDown,
-    onClick,
     onMouseUp,
     onMouseEnter,
     onMouseLeave,
+    onClick,
     styles,
-    adjustedHeight,
-    adjustedWidth,
     fill,
     stroke,
-    scale,
-    rotate,
-    x,
-    y,
-  ]);
+    targets: {
+      width: adjustedWidth,
+      fill,
+      stroke,
+      height: adjustedHeight,
+      x,
+      y,
+      scale,
+      rotate,
+    },
+  });
 
-  return <Fragment />;
+  return null;
 };
 
 export default Rect;
