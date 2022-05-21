@@ -258,8 +258,8 @@ const Canvas = ({ children, style }) => {
         width={width}
         height={height}
         style={{
-          width: `${window.devicePixelRatio}00%`,
-          height: `${window.devicePixelRatio}00%`,
+          width: `${window.devicePixelRatio * 100}%`,
+          height: `${window.devicePixelRatio* 100}%`,
           transformOrigin: "left top",
           transform: `scale(${1 / window.devicePixelRatio})`,
         }}

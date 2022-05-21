@@ -219,7 +219,7 @@ const App = () => {
           height={height}
           fill={fill}
           borderRadius={16}
-          // onClick={() => {}}
+          onClick={() => setFill('red')}
           // onMouseDown={() => setScale(0.9)}
           // onMouseUp={() => setScale(1)}
         />
