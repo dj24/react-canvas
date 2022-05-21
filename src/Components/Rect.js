@@ -3,6 +3,9 @@ import { Fragment, useEffect } from "react";
 import { useCanvas } from "./Canvas";
 import usePosition from "../hooks/usePosition";
 
+
+// TODO: type this to be reusable
+// maybe refactor for reconciler?
 const Rect = ({
   left,
   top,
@@ -18,6 +21,8 @@ const Rect = ({
   index,
   onMouseDown,
   onMouseUp,
+  onMouseEnter,
+  onMouseLeave,
   onClick,
 }) => {
   const { dispatch } = useCanvas();
@@ -55,6 +60,8 @@ const Rect = ({
       borderRadius,
       onMouseDown,
       onMouseUp,
+      onMouseEnter,
+      onMouseLeave,
       onClick,
       styles,
       fill,
@@ -77,6 +84,8 @@ const Rect = ({
     onMouseDown,
     onClick,
     onMouseUp,
+    onMouseEnter,
+    onMouseLeave,
     styles,
     adjustedHeight,
     adjustedWidth,

@@ -220,8 +220,8 @@ const App = () => {
           fill={fill}
           borderRadius={16}
           onClick={() => setFill('red')}
-          // onMouseDown={() => setScale(0.9)}
-          // onMouseUp={() => setScale(1)}
+          onMouseEnter={() => setScale(0.9)}
+          onMouseLeave={() => setScale(1)}
         />
 
         {/* <Rect x={50} y={50} /> */}
