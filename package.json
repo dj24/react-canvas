@@ -1,7 +1,7 @@
 {
   "name": "canvas",
   "version": "0.1.0",
-  "homepage": "https://dj24.github.io",
+  "homepage": "https://dj24.github.io/react-canvas",
   "private": false,
   "dependencies": {
     "@react-spring/web": "^9.3.0",
