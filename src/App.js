@@ -27,6 +27,156 @@ const App = () => {
   const [scale, setScale] = useState(1);
   const [fill, setFill] = useState("#ff0000");
   const [rotate, setRotate] = useState(0);
+  const [dragging, setDragging] = useState(false);
+
+  const controls = (
+      <Accordion
+      allowMultiple
+      bg="white"
+      m={4}
+      width='320px'
+      spacing={0}
+      position="fixed"
+      bottom={0}
+      borderWidth='1px'
+      borderRadius="lg"
+      shadow="lg"
+    >
+      <AccordionItem>
+        <Flex>
+          <AccordionButton>
+            <Heading size='md' flex='1' textAlign='left'>
+              Transforms
+            </Heading>
+            <AccordionIcon />
+          </AccordionButton>
+        </Flex>
+        {/* TRANSFORMS */}
+        <AccordionPanel>
+          <VStack
+              p={6}
+              width="100%"
+              align="start"
+          >
+            <FormControl>
+              <FormLabel>Scale</FormLabel>
+              <RangeInput
+                  min={0.1}
+                  max={2}
+                  step={0.05}
+                  defaultValue={scale}
+                  value={scale}
+                  onChange={setScale}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel>Rotation</FormLabel>
+              <RangeInput
+                  min={0}
+                  max={360}
+                  value={rotate}
+                  defaultValue={rotate}
+                  onChange={setRotate}
+              />
+            </FormControl>
+          </VStack>
+        </AccordionPanel>
+      </AccordionItem>
+      {/* CONSTRAINTS */}
+      <AccordionItem>
+        <Flex>
+          <AccordionButton>
+            <Heading size='md' flex='1' textAlign='left'>
+              Constraints
+            </Heading>
+            <AccordionIcon />
+          </AccordionButton>
+        </Flex>
+        <AccordionPanel>
+          <VStack
+              p={6}
+              width="100%"
+              align="start"
+          >
+            <FormControl>
+              <Flex>
+                <FormLabel>Left</FormLabel>
+                <Spacer/>
+                <Switch
+                    isChecked={left !== null}
+                    onChange={() => setLeft((left) => (left !== null ? null : 20))}
+                />
+              </Flex>
+              <RangeInput
+                  min={20}
+                  max={200}
+                  value={left}
+                  defaultValue={left}
+                  disabled={left === null}
+                  onChange={setLeft}
+              />
+            </FormControl>
+            <FormControl>
+              <Flex>
+                <FormLabel>Right</FormLabel>
+                <Spacer/>
+                <Switch
+                    isChecked={right !== null}
+                    onChange={() => setRight((right) => (right !== null ? null : 20))}
+                />
+              </Flex>
+              <RangeInput
+                  min={20}
+                  max={200}
+                  value={right}
+                  defaultValue={right}
+                  disabled={right === null}
+                  onChange={setRight}
+              />
+            </FormControl>
+            <FormControl>
+              <Flex>
+                <FormLabel>Top</FormLabel>
+                <Spacer/>
+                <Switch
+                    isChecked={top !== null}
+                    onChange={() => setTop((top) => (top !== null ? null : 20))}
+                />
+              </Flex>
+              <RangeInput
+                  min={20}
+                  max={200}
+                  value={top}
+                  defaultValue={right}
+                  disabled={top === null}
+                  onChange={setTop}
+              />
+            </FormControl>
+            <FormControl>
+              <Flex>
+                <FormLabel>Bottom</FormLabel>
+                <Spacer/>
+                <Switch
+                    isChecked={bottom !== null}
+                    onChange={() =>
+                        setBottom((bottom) => (bottom !== null ? null : 20))
+                    }
+                />
+              </Flex>
+              <RangeInput
+                  min={20}
+                  max={200}
+                  disabled={bottom === null}
+                  value={bottom}
+                  defaultValue={bottom}
+                  onChange={setBottom}
+              />
+            </FormControl>
+          </VStack>
+        </AccordionPanel>
+      </AccordionItem>
+    </Accordion>
+  );
 
   return (
     <>
@@ -51,159 +201,15 @@ const App = () => {
           height={height}
           fill={fill}
           borderRadius={16}
-          onClick={() => setFill('red')}
-          onMouseEnter={() => setScale(0.9)}
-          onMouseLeave={() => setScale(1)}
+          onMouseDown={() => setDragging(true)}
+          onMouseUp={() => setDragging(false)}
+          onMouseEnter={() => setFill('#0f0')}
+          onMouseLeave={() => setFill('#f00')}
         />
 
         {/* <Rect x={50} y={50} /> */}
       </Canvas>
-      <Accordion
-        allowMultiple
-        bg="white"
-        m={4}
-        width='320px'
-        spacing={0}
-        position="fixed"
-        bottom={0}
-        borderWidth='1px'
-        borderRadius="lg"
-        shadow="lg"
-      >
-        <AccordionItem>
-          <Flex>
-            <AccordionButton>
-              <Heading size='md' flex='1' textAlign='left'>
-                Transforms
-              </Heading>
-              <AccordionIcon />
-            </AccordionButton>
-          </Flex>
-          {/* TRANSFORMS */}
-          <AccordionPanel>
-            <VStack
-              p={6}
-              width="100%"
-              align="start"
-            >
-              <FormControl>
-                <FormLabel>Scale</FormLabel>
-                <RangeInput
-                  min={0.1}
-                  max={2}
-                  step={0.05}
-                  defaultValue={scale}
-                  value={scale}
-                  onChange={setScale}
-                />
-              </FormControl>
-              <FormControl>
-                <FormLabel>Rotation</FormLabel>
-                <RangeInput
-                  min={0}
-                  max={360}
-                  value={rotate}
-                  defaultValue={rotate}
-                  onChange={setRotate}
-                />
-              </FormControl>
-            </VStack>
-          </AccordionPanel>
-        </AccordionItem>
-        {/* CONSTRAINTS */}
-        <AccordionItem>
-          <Flex>
-            <AccordionButton>
-              <Heading size='md' flex='1' textAlign='left'>
-                Constraints
-              </Heading>
-              <AccordionIcon />
-            </AccordionButton>
-          </Flex>
-          <AccordionPanel>
-            <VStack
-              p={6}
-              width="100%"
-              align="start"
-            >
-              <FormControl>
-                <Flex>
-                  <FormLabel>Left</FormLabel>
-                  <Spacer/>
-                  <Switch
-                    isChecked={left !== null}
-                    onChange={() => setLeft((left) => (left !== null ? null : 20))}
-                  />
-                </Flex>
-                <RangeInput
-                  min={20}
-                  max={200}
-                  value={left}
-                  defaultValue={left}
-                  disabled={left === null}
-                  onChange={setLeft}
-                />
-              </FormControl>
-              <FormControl>
-                <Flex>
-                  <FormLabel>Right</FormLabel>
-                  <Spacer/>
-                  <Switch
-                    isChecked={right !== null}
-                    onChange={() => setRight((right) => (right !== null ? null : 20))}
-                  />
-                </Flex>
-                <RangeInput
-                  min={20}
-                  max={200}
-                  value={right}
-                  defaultValue={right}
-                  disabled={right === null}
-                  onChange={setRight}
-                />
-              </FormControl>
-              <FormControl>
-                <Flex>
-                  <FormLabel>Top</FormLabel>
-                  <Spacer/>
-                  <Switch
-                    isChecked={top !== null}
-                    onChange={() => setTop((top) => (top !== null ? null : 20))}
-                  />
-                </Flex>
-                <RangeInput
-                  min={20}
-                  max={200}
-                  value={top}
-                  defaultValue={right}
-                  disabled={top === null}
-                  onChange={setTop}
-                />
-              </FormControl>
-              <FormControl>
-                <Flex>
-                  <FormLabel>Bottom</FormLabel>
-                  <Spacer/>
-                  <Switch
-                    isChecked={bottom !== null}
-                    onChange={() =>
-                      setBottom((bottom) => (bottom !== null ? null : 20))
-                    }
-                  />
-                </Flex>
-                <RangeInput
-                  min={20}
-                  max={200}
-                  disabled={bottom === null}
-                  value={bottom}
-                  defaultValue={bottom}
-                  onChange={setBottom}
-                />
-              </FormControl>
-            </VStack>
-          </AccordionPanel>
-        </AccordionItem>
-      </Accordion>
+      {controls}
     </>
   );
 };

@@ -10,7 +10,6 @@ import {useState} from "react";
 
 const RangeInput = ({value, ...props}) => {
   const [showTooltip, setShowTooltip] = useState(false);
-  console.log({props})
   return (
     <Slider
       {...props}

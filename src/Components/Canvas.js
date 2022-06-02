@@ -29,28 +29,39 @@ const Canvas = ({ children, style }) => {
     const { clientX, clientY } = event;
     const { x, y } = canvas.getBoundingClientRect();
     mousePosition.current = { x: clientX - x, y: clientY - y };
-    objects.current.reverse().forEach((object) => {
-      const { x, y, width, height } = object.styles;
+    objects.current.reverse().forEach((object, index) => {
+      const { x, y, width, height, scale } = object.styles;
+
+      const scaledWidth = width.get() * scale.get();
+      const scaledHeight = height.get() * scale.get();
+
+      const widthDiff = width.get() - scaledWidth;
+      const heightDiff = height.get() - scaledHeight;
+
+      const leftExtents = x.get() + widthDiff / 2;
+      const rightExtents = x.get() + width.get() - widthDiff / 2;
+      const bottomExtents = y.get() + heightDiff / 2;
+      const topExtents = y.get() + height.get() - heightDiff / 2;;
+
+      const isInsideObject =
+          mousePosition.current.x >= leftExtents &&
+          mousePosition.current.x <= rightExtents &&
+          mousePosition.current.y >= bottomExtents &&
+          mousePosition.current.y <= topExtents;
       if (
           object.onMouseEnter &&
           !object.isEntered &&
-          mousePosition.current.x >= x.get() &&
-          mousePosition.current.x <= x.get() + width.get() &&
-          mousePosition.current.y >= y.get() &&
-          mousePosition.current.y <= y.get() + height.get()
+          isInsideObject
       ) {
-        object.isEntered = true;
+        objects.current[index].isEntered = true;
         object.onMouseEnter(event);
       }
-      if (
+      else if (
           object.onMouseLeave &&
           object.isEntered &&
-          mousePosition.current.x >= x.get() &&
-          mousePosition.current.x <= x.get() + width.get() &&
-          mousePosition.current.y >= y.get() &&
-          mousePosition.current.y <= y.get() + height.get()
+          !isInsideObject
       ) {
-        object.isEntered = false;
+        objects.current[index].isEntered = false;
         object.onMouseLeave(event);
       }
     });
