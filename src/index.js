@@ -1,18 +1,9 @@
-import React from 'react';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import { ChakraProvider } from '@chakra-ui/react'
-import {createRoot} from "react-dom/client";
+import React from "react";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+import CanvasRenderer from "./renderer/canvasRenderer";
 
-createRoot(
-  document.getElementById('root')
-).render(
-    <React.StrictMode>
-        <ChakraProvider>
-            <App />
-        </ChakraProvider>
-    </React.StrictMode>
-);
+CanvasRenderer.render(<App />, document.getElementById("root"));
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
