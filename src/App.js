@@ -37,7 +37,9 @@ const App = () => {
         scale={scale}
         borderRadius={16}
         opacity={0.5}
-      />
+      >
+        <text>Text Test</text>
+      </rect>
       <rect
         x={300}
         fill={"#0f0"}
@@ -58,21 +60,6 @@ const App = () => {
         scale={1}
         borderRadius={32}
       />
-      {showRect && (
-        <rect
-          left={top}
-          right={right}
-          top={left}
-          bottom={bottom}
-          width={width}
-          height={height}
-          x={dragPoint.x - dragOffset.x}
-          y={dragPoint.y - dragOffset.y}
-          animate={!dragging}
-          fill={"blue"}
-          borderRadius={8}
-        />
-      )}
     </>
   );
 };

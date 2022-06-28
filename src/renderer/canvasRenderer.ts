@@ -6,6 +6,8 @@ import objectStore from "./objectStore";
 import constraintsToPosition from "../util/constraintsToPosition";
 import { rect, roundedRect } from "../util";
 import { SpringValue } from "react-spring";
+import text from "../util/text";
+import {addShadow, removeShadow} from "../util/shadow";
 
 const { createContainer, updateContainer } = ReactReconciler(hostConfig);
 
@@ -38,7 +40,6 @@ const renderRect = (canvas: HTMLCanvasElement, props: any) => {
   );
 
   if (scale instanceof SpringValue) {
-    scale.advance(1000 / 60);
     scale = scale.get();
   }
 
@@ -65,32 +66,84 @@ const renderRect = (canvas: HTMLCanvasElement, props: any) => {
 
   context.globalAlpha = 0.5;
 
-  context.shadowColor = "rgba(0,0,0,0.5)";
-  context.shadowBlur = 64;
-  context.shadowOffsetY = 24;
+  addShadow(context);
 
-  context.translate(centerX, centerY);
+  context.translate(x, y);
+  // Ensure transform around center
+  context.translate(width / 2, height / 2);
   context.rotate((rotate * Math.PI) / 180);
   context.scale(scale, scale);
-
-  context.translate(-centerX, -centerY);
+  context.translate(-width / 2, -height / 2);
 
   if (borderRadius === 0) {
-    rect(context, x, y, width, height, fill, stroke);
+    rect(context, 0, 0, width, height, fill, stroke);
   } else {
-    roundedRect(context, x, y, width, height, fill, stroke, borderRadius);
+    roundedRect(context, 0, 0, width, height, fill, stroke, borderRadius);
+  }
+};
+
+const renderText = (canvas: HTMLCanvasElement, props: any) => {
+  const context = canvas.getContext("2d");
+  if (!context) return;
+  let {
+    x = null,
+    y = null,
+    scale,
+    rotate,
+    colour = "black",
+    top = null,
+    bottom = null,
+    left = null,
+    right = null,
+  } = props;
+
+  const calculatedPositionAndSize = constraintsToPosition(
+      top,
+      right,
+      left,
+      bottom,
+      props.width?.get(),
+      props.height?.get(),
+      canvas.width,
+      canvas.height
+  );
+
+  if (scale instanceof SpringValue) {
+    scale = scale.get();
   }
 
-  context.shadowBlur = 0;
-  context.shadowOffsetY = 0;
+  const { width, height } = calculatedPositionAndSize;
+
+  if (!x) x = calculatedPositionAndSize.x;
+  if (!y) y = calculatedPositionAndSize.y;
+
+  if (x instanceof SpringValue) {
+    x = x.get();
+  }
+  if (y instanceof SpringValue) {
+    y = y.get();
+  }
+  if (rotate instanceof SpringValue) {
+    rotate = rotate.get();
+  }
+
+  const centerX = x + width / 2;
+  const centerY = y + height / 2;
+
+  addShadow(context);
+
+  context.translate(x, y);
+  // Ensure transform around center
+  context.translate(width / 2, height / 2);
+  context.rotate((rotate * Math.PI) / 180);
+  context.scale(scale, scale);
+  context.translate(-width / 2, -height / 2);
+
   context.globalAlpha = 1;
-  context.fillStyle = "#000";
-  context.shadowColor = "transparent";
-  const textSize = 30;
-  context.font = `${textSize}px Arial`;
-  const text = "Hello World";
-  const { width: textWidth } = context.measureText(text);
-  context.fillText(text, centerX - textWidth / 2, centerY + textSize / 2);
+
+  removeShadow(context);
+
+  text(context,0, 0, "Hello World");
 };
 
 const CanvasRenderer = {
@@ -146,6 +199,7 @@ const CanvasRenderer = {
       Object.values(objectStore).forEach((object: any) => {
         context.save();
         renderRect(domElement, object);
+        renderText(domElement, {x: 0, y: 0, scale: 1});
         context.restore();
       });
       animationFrameId = window.requestAnimationFrame(render);
